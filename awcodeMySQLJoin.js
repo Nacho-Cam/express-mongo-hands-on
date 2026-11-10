@@ -174,11 +174,13 @@ app.get("/", async (req, res) => {
         // Ejecutamos la consulta con INNER JOIN y LEFT JOIN
         const items = await getItemsWithJoins("Today");
         const priorities = await getAllPriorities();
+        const [allLists] = await pool.query("SELECT name FROM lists_join WHERE name <> 'Favicon.ico' ORDER BY name ASC");
 
         res.render("list", { 
             listTitle: "Today", 
             newListItems: items,
-            priorities: priorities
+            priorities: priorities,
+            allLists: allLists
         });
     } catch (err) {
         console.error("Error en GET /:", err);
@@ -282,6 +284,9 @@ app.get("/about", (req, res) => {
 });
 
 // RUTA 4: GET /:customListName (Listas personalizadas dinámicas - SIEMPRE AL FINAL)
+// Los navegadores solicitan /favicon.ico automáticamente; no es una lista del usuario.
+app.get("/favicon.ico", (req, res) => res.sendStatus(204));
+
 app.get("/:customListName", async (req, res) => {
     const customListName = _.capitalize(req.params.customListName);
 
@@ -302,11 +307,13 @@ app.get("/:customListName", async (req, res) => {
         } else {
             const items = await getItemsWithJoins(customListName);
             const priorities = await getAllPriorities();
+            const [allLists] = await pool.query("SELECT name FROM lists_join WHERE name <> 'Favicon.ico' ORDER BY name ASC");
 
             res.render("list", { 
                 listTitle: customListName, 
                 newListItems: items,
-                priorities: priorities
+                priorities: priorities,
+                allLists: allLists
             });
         }
     } catch (err) {
