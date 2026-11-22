@@ -16,14 +16,8 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Connect to a MongoDB database named todolistDB with a deprecation fix for the URL parser
-//mongoose.connect("mongodb://localhost:27017/todolistDB", { useNewUrlParser: true });
-//const MONGODB_ATLAS_URI = "mongodb+srv://fjbanezares:Pepito123@cluster0.h5kauwo.mongodb.net/?retryWrites=true&w=majority"
-
-
-
-const MONGODB_ATLAS_URI = "mongodb+srv://fjbanezares:Pepito123@cluster0.n87gd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-mongoose.connect(MONGODB_ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+// Configure MONGODB_URI locally in .env or as a cloud environment variable.
+const MONGODB_URI = process.env.MONGODB_URI;
 
 
 // Define a schema for the items in the to-do list, consisting of a single field 'name'
@@ -62,13 +56,21 @@ app.get("/", async (req, res) => {
             res.redirect("/");
         } else {
             // If items are found, render the 'list' EJS template with the found items
-            res.render("list", { listTitle: "Today", newListItems: foundItems });
+            const customLists = await List.find({}, "name").sort({ name: 1 });
+            res.render("list", { listTitle: "Today", newListItems: foundItems, customLists, displayName });
         }
     } catch (err) {
         // Log any errors and send a server error response
         console.log(err);
         res.status(500).send("Error retrieving items");
     }
+});
+
+const displayName = process.env.DISPLAY_NAME || "Ignacio Camarena";
+
+// Handle the static about route before the custom-list catch-all.
+app.get("/about", (req, res) => {
+    res.render("about");
 });
 
 // Handle GET requests for custom list names. This allows users to create and view custom lists
@@ -90,7 +92,8 @@ app.get("/:customListName", async (req, res) => {
             res.redirect("/" + customListName);
         } else {
             // If the list exists, render it with its items
-            res.render("list", { listTitle: foundList.name, newListItems: foundList.items });
+            const customLists = await List.find({}, "name").sort({ name: 1 });
+            res.render("list", { listTitle: foundList.name, newListItems: foundList.items, customLists, displayName });
         }
     } catch (err) {
         // Log any errors and send a server error response
@@ -151,15 +154,18 @@ app.post("/delete", async (req, res) => {
     }
 });
 
-// Handle GET requests to the "about" page
-app.get("/about", (req, res) => {
-    res.render("about"); // Render the 'about' EJS template
-});
-
-
-
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, function () {
-    console.log("Server started on port", PORT);
-});
+if (!MONGODB_URI) {
+    throw new Error("Falta la variable de entorno MONGODB_URI");
+}
+
+mongoose.connect(MONGODB_URI)
+    .then(() => {
+        console.log("Conectado a MongoDB");
+        app.listen(PORT, () => console.log("Server started on port", PORT));
+    })
+    .catch((err) => {
+        console.error("No se pudo conectar a MongoDB:", err.message);
+        process.exit(1);
+    });

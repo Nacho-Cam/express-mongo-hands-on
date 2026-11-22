@@ -8,6 +8,18 @@
     </h1>
   </div>
 
+  <% if (typeof customLists !== 'undefined') { %>
+  <div class="box list-switcher">
+    <label for="list-selector">Listas tareas de <%= displayName %></label>
+    <select id="list-selector" onchange="if (this.value) window.location.href = this.value">
+      <option value="/" <%= listTitle === "Today" ? "selected" : "" %>>Today</option>
+      <% customLists.forEach(function(list) { %>
+        <option value="/<%= encodeURIComponent(list.name) %>" <%= listTitle === list.name ? "selected" : "" %>><%= list.name %></option>
+      <% }) %>
+    </select>
+  </div>
+  <% } %>
+
   <div class="box">
     <!-- This is a loop using EJS templating. For each item in the newListItems array, the function is executed. -->
     <% newListItems.forEach(function(item){ %>
