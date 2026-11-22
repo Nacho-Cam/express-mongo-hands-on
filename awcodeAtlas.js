@@ -16,8 +16,8 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Configure MONGODB_URI locally in .env or as a cloud environment variable.
-const MONGODB_URI = process.env.MONGODB_URI;
+// Credencial temporal de la práctica: exposición deliberada para estudiar sus riesgos.
+const MONGODB_URI = "mongodb+srv://practica_ignacio:Nach1111@cluster0.hobdysw.mongodb.net/todolistDB?retryWrites=true&w=majority";
 
 
 // Define a schema for the items in the to-do list, consisting of a single field 'name'
@@ -155,10 +155,6 @@ app.post("/delete", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
-if (!MONGODB_URI) {
-    throw new Error("Falta la variable de entorno MONGODB_URI");
-}
 
 mongoose.connect(MONGODB_URI)
     .then(() => {

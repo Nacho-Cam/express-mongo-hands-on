@@ -1,5 +1,7 @@
 # Despliegue de la lista en Render y MongoDB Atlas
 
+**Entrega actual:** siguiendo la indicación posterior del profesor, `awcodeAtlas.js` contiene deliberadamente la URI de un usuario de práctica limitado a `todolistDB`. Las instrucciones sobre `MONGODB_URI` de abajo corresponden a la versión segura que se trabajará en la siguiente entrega. Al acabar la práctica hay que eliminar el usuario de práctica en Atlas y volver a usar una variable de entorno; el historial público conserva la credencial.
+
 ## 1. Crear tu fork
 
 1. Abre <https://github.com/fjbanezares/express-mongo-hands-on> e inicia sesión en GitHub.
